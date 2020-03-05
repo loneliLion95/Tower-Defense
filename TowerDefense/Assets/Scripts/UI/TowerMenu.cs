@@ -8,63 +8,68 @@ using TMPro;
 public class TowerMenu : Loader<TowerMenu>
 {
     public GameObject towerMenu;
-    /// <summary>
-    /// Panel with selling price of the selected tower
-    /// </summary>
-    public GameObject sellingPricePanel;
-    /// <summary>
-    /// Button for selling the tower
-    /// </summary>
-    public Button sellingButton;
 
-    private Balance balance;
-    private TextMeshProUGUI sellingPriceText;
-
-    /// <summary>
-    /// Tower that was builded on this tower slot
-    /// </summary>
     [HideInInspector]
-    public Tower buildedTower;
-
+    public GameObject buildingPricePanel;
+    [HideInInspector]
+    public TextMeshProUGUI buildingPriceText;
+    [HideInInspector]
+    public GameObject buildButton;
+    [HideInInspector]
+    public GameObject sellingPricePanel;
+    [HideInInspector]
+    public TextMeshProUGUI sellingPriceText;
+    [HideInInspector]
+    public GameObject sellButton;
+    
     /// <summary>
     /// Tower that was selected
     /// </summary>
     public static Tower selectedTower;
 
+    private Balance balance;
+    private TowerSlot selectedSlot;
+
     void Start()
     {
-        balance = Balance.Instance;
+        buildingPricePanel = towerMenu.transform.Find("buildingPricePanel").gameObject;
+        buildingPriceText = buildingPricePanel.GetComponentInChildren<TextMeshProUGUI>();
+        buildButton = towerMenu.transform.Find("buildButton").gameObject;
+        sellingPricePanel = towerMenu.transform.Find("sellingPricePanel").gameObject;
         sellingPriceText = sellingPricePanel.GetComponentInChildren<TextMeshProUGUI>();
+        sellButton = towerMenu.transform.Find("sellButton").gameObject;
+        balance = Balance.Instance;
     }
 
     /// <summary>
-    /// Handler for clicking on tower slots
+    /// Handler for clicking on tower slot buttons
     /// </summary>
     public void OpenCloseTowerMenu()
     {
         Refresh();
 
+        selectedSlot = TowerSlot.selectedSlot;
         selectedTower = null;
 
         if (!towerMenu.activeSelf)
         {
             towerMenu.SetActive(true);
-            towerMenu.transform.position = transform.position;
+            towerMenu.transform.position = selectedSlot.transform.position;
         }
         else
         {
-            if (towerMenu.transform.position == transform.position)
+            if (towerMenu.transform.position == selectedSlot.transform.position)
                 towerMenu.SetActive(false);
             else
-                towerMenu.transform.position = transform.position;
+                towerMenu.transform.position = selectedSlot.transform.position;
         }
 
-        if (buildedTower != null)
+        if (selectedSlot.buildedTower != null)
         {
-            selectedTower = buildedTower;
+            selectedTower = selectedSlot.buildedTower;
             sellingPricePanel.SetActive(true);
-            sellingPriceText.text = buildedTower.sellingPrice.ToString();
-            sellingButton.gameObject.SetActive(true);
+            sellingPriceText.text = selectedTower.sellingPrice.ToString();
+            sellButton.SetActive(true);
         }
     }
 
@@ -73,10 +78,11 @@ public class TowerMenu : Loader<TowerMenu>
     /// </summary>
     public void BuildTower()
     {
-        Instantiate(TowerButton.selectedButton.tower, transform.position, Quaternion.identity);
+        selectedSlot = TowerSlot.selectedSlot;
+        TowerButton selectedTowerButton = TowerButton.selectedTowerButton;
+        Instantiate(selectedTowerButton.tower, selectedSlot.transform.position, Quaternion.identity);
         towerMenu.SetActive(false);
-        balance.currencyAmount -= TowerButton.selectedButton.towerData.buildPrice;
-        Refresh();
+        balance.currencyAmount -= selectedTowerButton.towerData.buildPrice;
     }
 
     /// <summary>
@@ -92,19 +98,17 @@ public class TowerMenu : Loader<TowerMenu>
     /// <summary>
     /// Reseting the tower menu to initial state
     /// </summary>
-    private void Refresh()
+    public void Refresh()
     {
-        TowerButton selectedButton = TowerButton.selectedButton;
-
-        if (selectedButton != null)
+        if (TowerButton.selectedTowerButton != null)
         {
-            selectedButton.costPanel.SetActive(false);
-            selectedButton.buildButton.SetActive(false);
-            selectedButton.towerBlock.color = Color.gray;
-            TowerButton.selectedButton = null;
+            TowerButton.selectedTowerButton.towerBlock.color = Color.gray;
+            TowerButton.selectedTowerButton = null;
         }
-
+        
+        buildingPricePanel.SetActive(false);
+        buildButton.SetActive(false);
         sellingPricePanel.SetActive(false);
-        sellingButton.gameObject.SetActive(false);
+        sellButton.gameObject.SetActive(false);
     }
 }

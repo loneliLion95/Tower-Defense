@@ -55,12 +55,16 @@ public class Enemy : MonoBehaviour
     /// </summary>
     private void Die()
     {
-        isDead = true;
-        balance.currencyAmount += Random.Range(enemyData.minCoins, enemyData.maxCoins);
-        GetComponent<Collider2D>().enabled = false;
-        anim.SetTrigger("isDead");
-        if (EnemyWaves.lastEnemies.Contains(this))
-            EnemyWaves.lastEnemies.Remove(this);
+        if (!isDead)
+        {
+            isDead = true;
+            balance.currencyAmount += Random.Range(enemyData.minCoins, enemyData.maxCoins);
+            GetComponent<SpriteRenderer>().sortingOrder = -3;
+            anim.SetTrigger("isDead");
+
+            if (EnemyWaves.lastEnemies.Contains(this))
+                EnemyWaves.lastEnemies.Remove(this);
+        }
     }
 
     /// <summary>

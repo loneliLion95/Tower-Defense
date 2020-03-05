@@ -82,8 +82,8 @@ public class Tower : Loader<Tower>
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.tag == "TowerSlot")   
-            collision.GetComponent<TowerMenu>().buildedTower = this;
+    { 
+        if (collision.CompareTag("TowerSlot"))
+            collision.GetComponent<TowerSlot>().buildedTower = this;
     }
 }

@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 /// <summary>
 /// Management for buttons in the tower menu
@@ -12,46 +11,41 @@ public class TowerButton : MonoBehaviour
     /// </summary>
     public TowerData towerData;
     /// <summary>
-    /// Display panel for cost of the selected tower
-    /// </summary>
-    public GameObject costPanel;
-    /// <summary>
-    /// Button for building the tower
-    /// </summary>
-    public GameObject buildButton;
-    /// <summary>
-    /// Background of the tower button, that will be shine when button is selected
-    /// </summary>
-    public Image towerBlock;
-    /// <summary>
     /// Tower that will be built when clicking the buildButton
     /// </summary>
     public GameObject tower;
 
-    private Balance balance;
+    /// <summary>
+    /// Background of the tower button, that will be shine when button is selected
+    /// </summary>
+    public Image towerBlock;
 
     /// <summary>
-    /// Tower button that was pressed
+    /// Tower button that was selected
     /// </summary>
-    public static TowerButton selectedButton;
-    
+    public static TowerButton selectedTowerButton;
+
+    private TowerMenu towerMenu;
+    private Balance balance;
+
     void Start()
     {
+        towerMenu = TowerMenu.Instance;
         balance = Balance.Instance;
     }
 
-    // Glow and fade when tower button is pressed
     void Update()
     {
+        // Glow and fade of towerButton when currencyAmount is enough for build the tower
         if (balance.currencyAmount >= towerData.buildPrice)
             GetComponent<Image>().color = Color.white;
         else
             GetComponent<Image>().color = Color.gray;
 
-        if (selectedButton != null)
-            selectedButton.towerBlock.color = Color.yellow;
-
-        if (selectedButton != this)
+        // Glow and fade of towerBlock when tower button is selected or not
+        if (selectedTowerButton == this)
+            towerBlock.color = Color.yellow;
+        else
             towerBlock.color = Color.gray;
     }
 
@@ -60,15 +54,13 @@ public class TowerButton : MonoBehaviour
     /// </summary>
     public void SelectButton()
     {
-        if (selectedButton != this)
-            selectedButton = this;
-
-        costPanel.SetActive(true);
-        costPanel.GetComponentInChildren<TextMeshProUGUI>().text = towerData.buildPrice.ToString();
+        if (selectedTowerButton != this)
+            selectedTowerButton = this;
+        
+        towerMenu.buildingPricePanel.SetActive(true);
+        towerMenu.buildingPriceText.text = towerData.buildPrice.ToString();
 
         if (balance.currencyAmount >= towerData.buildPrice && TowerMenu.selectedTower == null)
-            buildButton.SetActive(true);
-        else
-            buildButton.SetActive(false);
+            towerMenu.buildButton.SetActive(true);
     }
 }
